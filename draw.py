@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageGrab
+import datetime
 import os
 import io
 
@@ -41,7 +42,9 @@ class DrawingApp:
 
     def generate_filename(self):
         self.filename += 1
-        return f"doodle{self.filename}.png"
+        now = datetime.datetime.now()
+        now = "{}-{}-{}-{}-{}-{}".format(now.year, now.month, now.day, now.hour, now.minute, now.second)
+        return f"doodle{self.filename}{now}.png"
     
     def save_doodle(self):
         label = self.label_text.get().strip()  # Get the label from the entry
