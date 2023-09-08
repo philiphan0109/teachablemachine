@@ -69,10 +69,28 @@ class DrawingApp:
                                                 initialdir=image_folder_path)  
 
         if save_path:
-            self.canvas.postscript(file="tmp.ps", colormode="color")
-            os.system(f"convert tmp.ps {save_path}")
-            os.remove("tmp.ps")
-        
+            # Save canvas content as postscript
+            ps = self.canvas.postscript(colormode='color')
+            img = Image.open(io.BytesIO(ps.encode('utf-8')))
+            
+            # Convert to RGBA for potential transparency handling (if needed in the future)
+            img = img.convert("RGBA")
+            
+            # Convert image to white background with black drawing
+            img_rgba = img.copy()
+            img_rgba_data = img_rgba.getdata()
+            newData = []
+            for item in img_rgba_data:
+                if item[0] == 255 and item[1] == 255 and item[2] == 255:
+                    newData.append((255, 255, 255, 0))
+                else:
+                    newData.append(item)
+            img_rgba.putdata(newData)
+            background = Image.new("RGB", img.size, "white")
+            background.paste(img_rgba, (0, 0), img_rgba)
+            
+            background.save(save_path)
+
         self.clear_screen()
 
 
