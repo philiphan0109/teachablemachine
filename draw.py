@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
-from PIL import Image, ImageGrab
+from PIL import Image, ImageDraw, ImageGrab
 import datetime
 import os
 import io
@@ -10,7 +10,7 @@ class DrawingApp:
         self.root = root
         self.root.title("Doodle")
 
-        self.canvas = tk.Canvas(root, bg="black", width=500, height=500)
+        self.canvas = tk.Canvas(root, bg="white", width=500, height=500)
         self.canvas.pack(pady=20)
         
         self.canvas.bind("<B1-Motion>", self.paint)
@@ -31,7 +31,7 @@ class DrawingApp:
     def paint(self, event):
         x, y = event.x, event.y
         if self.last_x and self.last_y:
-            self.canvas.create_line((self.last_x, self.last_y, x, y), width=10, fill='white', capstyle=tk.ROUND, smooth=tk.TRUE)
+            self.canvas.create_line((self.last_x, self.last_y, x, y), width=10, fill='black', capstyle=tk.ROUND, smooth=tk.TRUE)
         self.last_x, self.last_y = x, y
 
     def reset_last_coordinates(self, event):  
@@ -69,12 +69,12 @@ class DrawingApp:
                                                 initialdir=image_folder_path)  
 
         if save_path:
-            self.canvas.postscript(file="tmp.ps", colormode="color")
-            os.system(f"convert tmp.ps {save_path}")
-            os.remove("tmp.ps")
+            # Convert the canvas content to an image using postscript
+            ps = self.canvas.postscript(colormode='color')
+            img = Image.open(io.BytesIO(ps.encode('utf-8')))
+            img.save(save_path)
         
         self.clear_screen()
-
 
 if __name__ == "__main__":
     root = tk.Tk()
